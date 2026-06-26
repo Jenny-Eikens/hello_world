@@ -1,5 +1,5 @@
-CREATE DATABASE library_app;
-USE library_app;
+CREATE DATABASE todo_app;
+USE todo_app;
 
 CREATE TABLE users (
     user_id INT PRIMARY KEY AUTO_INCREMENT,
