@@ -29,13 +29,9 @@ export async function addTask(description, urgency) {
     INSERT INTO tasks (description, urgency)
     VALUES (?, ?)
     `, [description, urgency])
-    const task = {
-        id: result.insertId,
-        description,
-        urgency
-    }
-    return task.description
+    return result
 }
+
 
 /* -------------------------------------- */
 

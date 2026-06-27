@@ -6,16 +6,16 @@ import { getAllTasks, addTask } from '../Models/taskModel.js'
 const router = express.Router()
 
 router.get('/', async (req, res) => {
-    const [tasks] = await getAllTasks()
+    const tasks = await getAllTasks()
+    console.log(tasks)
     res.status(200).send('Task controller works!' + tasks)
 })
 
 router.post('/', async (req, res) => {
     const { description, urgency } = req.body
     const newTask = await addTask(description, urgency)
-    console.log('Params: ', req.params)
-    console.log('Body: ', req.body)
     res.status(201).send('New task added! \n' + newTask)
 })
+
 
 export default router
