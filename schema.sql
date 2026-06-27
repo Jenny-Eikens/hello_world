@@ -52,23 +52,31 @@ CREATE TABLE user_groups (
     FOREIGN KEY (group_id) REFERENCES groups_list(group_id)
 );
 
-INSERT INTO users (first_name, last_name, email)
-VALUES ('Mary', 'Smith', 'msmith@gmail.com');
+CREATE TABLE group_tasks (
+    group_id INT,
+    task_id INT,
+    PRIMARY KEY (group_id, task_id),
+    FOREIGN KEY (group_id) REFERENCES groups_list(group_id),
+    FOREIGN KEY (task_id) REFERENCES tasks(task_id)
+);
 
-INSERT INTO tasks (description, urgency, category)
-VALUES ('Finish documentation', 'medium', 'work');
+-- INSERT INTO users (first_name, last_name, email)
+-- VALUES ('Mary', 'Smith', 'msmith@gmail.com');
 
-INSERT INTO groups_list (name, description) 
-VALUES ('Party planning committee', 'Group for planning and hosting parties');
+-- INSERT INTO tasks (description, urgency, category)
+-- VALUES ('Finish documentation', 'medium', 'work');
 
-INSERT INTO tags (name)
-VALUES 
-('fun'),
-('time-consuming'),
-('tedious');
+-- INSERT INTO groups_list (name, description) 
+-- VALUES ('Party planning committee', 'Group for planning and hosting parties');
 
-INSERT INTO task_tags
-VALUES (1, 1);
+-- INSERT INTO tags (name)
+-- VALUES 
+-- ('fun'),
+-- ('time-consuming'),
+-- ('tedious');
 
-INSERT INTO user_groups 
-VALUES (1, 1);
+-- INSERT INTO task_tags
+-- VALUES (1, 1);
+
+-- INSERT INTO user_groups 
+-- VALUES (1, 1);
