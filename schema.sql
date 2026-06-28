@@ -7,7 +7,10 @@ CREATE TABLE users (
     last_name VARCHAR(30) NOT NULL,
     user_name VARCHAR(61)
         GENERATED ALWAYS AS (CONCAT(first_name, '.', last_name)) STORED,
-    email VARCHAR(254) NOT NULL
+    email VARCHAR(254) NOT NULL,
+    user_group_id INT,
+    PRIMARY KEY (group_id),
+    FOREIGN KEY (user_group_id) REFERENCES groups_list(group_id)
 );
 
 CREATE TABLE tasks (
@@ -17,6 +20,9 @@ CREATE TABLE tasks (
     status VARCHAR(11) NOT NULL DEFAULT 'new',
     created_on TIMESTAMP NOT NULL DEFAULT NOW(),
     category VARCHAR(10) NOT NULL DEFAULT 'other',
+    task_group_id INT,
+    PRIMARY KEY (group_id),
+    FOREIGN KEY (task_group_id) REFERENCES groups_list(group_id),
     CONSTRAINT status_constraint 
         CHECK (status IN ('new', 'in progress', 'complete', 'cancelled')),
     CONSTRAINT category_constraint 
