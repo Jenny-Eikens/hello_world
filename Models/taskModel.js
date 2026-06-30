@@ -10,14 +10,14 @@ export async function getAllTasks() {
 }
 
 // Get one task (filter by any column)
-export async function getTaskByColumn(column, value) {
+export async function getTaskByField(field, value) {
     const allowed = ["task_id", "description", "urgency", "status", "created_on", "category", "task_group_id"]
-    if (!allowed.includes(column)) {
-        throw new Error ("Invalid column")
+    if (!allowed.includes(field)) {
+        throw new Error ("Invalid field")
     }
     const task = await pool.query(`
         SELECT * FROM tasks
-        WHERE ${column} = ?
+        WHERE ${field} = ?
     `, [value])
     return task[0][0]
 }
@@ -34,11 +34,22 @@ export async function addTask(description, urgency) {
     return result
 }
 
-
 /* -------------------------------------- */
 
 // PATCH
 // Update task
+export async function updateTask(id, field, value) {
+    const allowed = ["task_id", "description", "urgency", "status", "created_on", "category", "task_group_id"]
+    if (!allowed.includes(field)) {
+        throw new Error ("Invalid field")
+    }
+    const result = await pool.query(`
+        UPDATE tasks
+        SET ${field} = ?
+        WHERE task_id = ?
+        `, [value, id])
+        return result
+}
 
 /* -------------------------------------- */
 

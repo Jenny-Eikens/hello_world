@@ -50,22 +50,6 @@ CREATE TABLE task_tags (
     FOREIGN KEY (tag_id) REFERENCES tags(tag_id)
 );
 
-CREATE TABLE user_groups (
-    user_id INT,
-    group_id INT,
-    PRIMARY KEY (user_id, group_id),
-    FOREIGN KEY (user_id) REFERENCES users(user_id),
-    FOREIGN KEY (group_id) REFERENCES groups_list(group_id)
-);
-
-CREATE TABLE group_tasks (
-    group_id INT,
-    task_id INT,
-    PRIMARY KEY (group_id, task_id),
-    FOREIGN KEY (group_id) REFERENCES groups_list(group_id),
-    FOREIGN KEY (task_id) REFERENCES tasks(task_id)
-);
-
 -- INSERT INTO users (first_name, last_name, email)
 -- VALUES ('Mary', 'Smith', 'msmith@gmail.com');
 
@@ -82,7 +66,4 @@ CREATE TABLE group_tasks (
 -- ('tedious');
 
 -- INSERT INTO task_tags
--- VALUES (1, 1);
-
--- INSERT INTO user_groups 
 -- VALUES (1, 1);

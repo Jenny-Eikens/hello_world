@@ -1,7 +1,7 @@
 // All database code (pool, queries) goes in this file
 
 /* TODO
-- decide if I want put method on tasks and users
+- decide if I want PUT method on tasks and users
 - add model and controller for users
 - decide whether to get rid of table group_tasks
 - decide if I want to enable querying by multiple columns
@@ -35,12 +35,3 @@ function errorHandler(err, req, res, next) {
 }
 
 app.listen(3000, () => console.log('Server is running on port 3000'))
-
-// async function test() {
-//     const result = await pool.query("SELECT * FROM tasks")
-//     return result
-// }
-
-// const todos = await test()
-// console.log(todos[0])
-
