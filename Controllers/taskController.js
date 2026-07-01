@@ -1,10 +1,11 @@
 // Controllers get data from model & control what a route does (what gets sent back etc.)
 
 import express from 'express'
-import { getAllTasks, getTaskByField, addTask, updateTask } from '../Models/taskModel.js'
+import { getAllTasks, getTaskById, getTaskByField, addTask, updateTask } from '../Models/taskModel.js'
 
 const router = express.Router()
 
+// GET (all / by field + value)
 router.get('/', async (req, res) => {
     // const { field, value } = req.query -> Warum funktioniert das nicht?
     const [field, value] = Object.entries(req.query).flat()
@@ -29,6 +30,23 @@ router.get('/', async (req, res) => {
     }
 })
 
+// GET (by id)
+router.get('/:id', async (req, res) => {
+    const id = req.params.id
+
+    try {
+        const task = await getTaskById(id)
+        if (!task) {
+            res.status(404).json({ message: "No task found with this id" })
+        } else {
+            res.status(200).send(task)
+        }
+    } catch (err) {
+        res.status(500).json({ message: err.message })
+    }
+})
+
+// POST 
 router.post('/', async (req, res) => {
     const { description, urgency } = req.body
     try {
@@ -42,18 +60,29 @@ router.post('/', async (req, res) => {
     }  
 })
 
+// PATCH 
 router.patch('/:id', async (req, res) => {
     const id = req.params.id
     const changes = req.body
-
+    console.log("Changes:", changes)
     let updatedTask
-    for (let key in changes) {
-        if (task[key] === changes[key]) {
-            continue
+
+    try {
+        const task = await getTaskById(id)
+        if (!task) {
+            res.status(404).json({ message: "No task found with this id" })
+        } else {
+            for (let key in changes) {
+                if (task[key] === changes[key]) {
+                    continue
+                }
+                updatedTask = await updateTask(id, key, changes[key])
+            }
+            res.status(200).send(updatedTask)
         }
-        updatedTask = await updateTask(id, key, changes[key])
+    } catch (err) {
+        res.status(500).json({ message: err.message })
     }
-    res.status(200).send(updatedTask)
 })
 
 

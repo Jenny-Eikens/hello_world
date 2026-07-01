@@ -2,6 +2,8 @@
 
 import { pool } from '../database.js'
 
+const allowed = ["task_id", "description", "urgency", "status", "created_on", "category", "task_group_id"]
+
 // GET
 // Get all tasks
 export async function getAllTasks() {
@@ -9,9 +11,17 @@ export async function getAllTasks() {
     return tasks
 }
 
+// Get one task (filter by id)
+export async function getTaskById(id) {
+    const [result] = await pool.query(`
+        SELECT * FROM tasks
+        WHERE task_id = ? 
+    `, [id])
+    return result[0]
+}
+
 // Get one task (filter by any column)
 export async function getTaskByField(field, value) {
-    const allowed = ["task_id", "description", "urgency", "status", "created_on", "category", "task_group_id"]
     if (!allowed.includes(field)) {
         throw new Error ("Invalid field")
     }
@@ -39,7 +49,6 @@ export async function addTask(description, urgency) {
 // PATCH
 // Update task
 export async function updateTask(id, field, value) {
-    const allowed = ["task_id", "description", "urgency", "status", "created_on", "category", "task_group_id"]
     if (!allowed.includes(field)) {
         throw new Error ("Invalid field")
     }

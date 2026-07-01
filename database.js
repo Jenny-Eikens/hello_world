@@ -3,8 +3,9 @@
 /* TODO
 - decide if I want PUT method on tasks and users
 - add model and controller for users
-- decide whether to get rid of table group_tasks
-- decide if I want to enable querying by multiple columns
+
+- figure out how to enable get using multiple fields + values
+- optimize patch
 */
 
 import mysql from 'mysql2'
