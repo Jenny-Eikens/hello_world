@@ -36,11 +36,11 @@ export async function getTaskByField(field, value) {
 
 // POST
 // Add task
-export async function addTask(description, urgency) {
+export async function addTask(description, urgency, status, created_on, category) {
     const result = await pool.query(`
-    INSERT INTO tasks (description, urgency)
-    VALUES (?, ?)
-    `, [description, urgency])
+    INSERT INTO tasks (description, urgency, status, created_on, category)
+    VALUES (?, ?, ?, ?, ?)
+    `, [description, urgency, status, created_on, category])
     return result
 }
 

@@ -48,9 +48,9 @@ router.get('/:id', async (req, res) => {
 
 // POST 
 router.post('/', async (req, res) => {
-    const { description, urgency } = req.body
+    const { description, urgency, status, created_on, category } = req.body
     try {
-        const newTask = await addTask(description, urgency)
+        const newTask = await addTask(description, urgency, status, created_on, category)
         if (!newTask) {
             res.status(400).json({ message: "Unable to create task" })
         }
@@ -64,7 +64,6 @@ router.post('/', async (req, res) => {
 router.patch('/:id', async (req, res) => {
     const id = req.params.id
     const changes = req.body
-    console.log("Changes:", changes)
     let updatedTask
 
     try {

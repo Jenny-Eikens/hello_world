@@ -15,7 +15,7 @@ CREATE TABLE users (
 
 CREATE TABLE tasks (
     task_id INT PRIMARY KEY AUTO_INCREMENT,
-    description VARCHAR(254) NOT NULL,
+    description VARCHAR(254) NOT NULL, 
     urgency VARCHAR(7) NOT NULL,
     status VARCHAR(11) NOT NULL DEFAULT 'new',
     created_on TIMESTAMP NOT NULL DEFAULT NOW(),

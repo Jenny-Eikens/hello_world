@@ -4,8 +4,9 @@
 - decide if I want PUT method on tasks and users
 - add model and controller for users
 
-- figure out how to enable get using multiple fields + values
+- figure out how to enable GET using multiple fields + values
 - optimize patch
+- POST: figure out how to make values optional
 */
 
 import mysql from 'mysql2'
