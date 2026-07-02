@@ -4,8 +4,7 @@
 - decide if I want PUT method on tasks and users
 - add model and controller for users
 
-- figure out how to enable GET using multiple fields + values
-- optimize patch
+- incorporate loops in all functions to make number of params passed variable
 - POST: figure out how to make values optional
 */
 

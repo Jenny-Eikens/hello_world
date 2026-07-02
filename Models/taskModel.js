@@ -48,15 +48,26 @@ export async function addTask(description, urgency, status, created_on, category
 
 // PATCH
 // Update task
-export async function updateTask(id, field, value) {
-    if (!allowed.includes(field)) {
-        throw new Error ("Invalid field")
+export async function updateTask(id, changes) {
+
+    const changeLength = Object.keys(changes).length
+    let queryString = ""
+    let i = 0
+    for (let key in changes) {
+        if (!allowed.includes(key)) {
+            continue
+        }
+        queryString += `${key} = '${changes[key]}'`
+        if (i < changeLength - 1) {
+            queryString += ", "
+            i++
+        }
     }
     const result = await pool.query(`
         UPDATE tasks
-        SET ${field} = ?
+        SET ${queryString}
         WHERE task_id = ?
-        `, [value, id])
+        `, [id])
         return result
 }
 

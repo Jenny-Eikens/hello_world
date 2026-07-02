@@ -64,20 +64,14 @@ router.post('/', async (req, res) => {
 router.patch('/:id', async (req, res) => {
     const id = req.params.id
     const changes = req.body
-    let updatedTask
 
     try {
         const task = await getTaskById(id)
         if (!task) {
             res.status(404).json({ message: "No task found with this id" })
         } else {
-            for (let key in changes) {
-                if (task[key] === changes[key]) {
-                    continue
-                }
-                updatedTask = await updateTask(id, key, changes[key])
-            }
-            res.status(200).send(updatedTask)
+           const updatedTask = await updateTask(id, changes)
+           res.status(200).send(updatedTask)
         }
     } catch (err) {
         res.status(500).json({ message: err.message })
