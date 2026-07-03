@@ -1,30 +1,35 @@
 // Controllers get data from model & control what a route does (what gets sent back etc.)
 
 import express from 'express'
-import { getAllTasks, getTaskById, getTaskByField, addTask, updateTask } from '../Models/taskModel.js'
+import { getAllTasks, getTaskById, getTasksByFields, addTask, updateTask, deleteTaskById, deleteTaskByFields, deleteAllTasks } from '../Models/taskModel.js'
 
 const router = express.Router()
 
-// GET (all / by field + value)
+// GET (all / by any field(s))
 router.get('/', async (req, res) => {
-    // const { field, value } = req.query -> Warum funktioniert das nicht?
-    const [field, value] = Object.entries(req.query).flat()
+    const filters = Object.entries(req.query)
 
-    if (!field || !value) {
+    if (filters.length === 0) {
         try {
             const tasks = await getAllTasks()
-            res.status(200).send(tasks[0])
+            if (tasks.length === 0) {
+                res.status(204).send()
+            } else {
+                res.status(200).send(tasks[0])
+            }
         } catch (err) {
             res.status(500).json({ message: err.message })
         }
     } else {
         try {
-            const task = await getTaskByField(field, value)
-            if (!task) {
+            const tasks = await getTasksByFields(filters)
+            if (tasks.length === 0) {
                 res.status(404).json({ message: "No matching task(s) found"})
+            } else {
+                res.status(200).send(tasks)
             }
-            res.status(200).send(task)
         } catch (err) {
+            console.log(err)
             res.status(500).json({ message: err.message })
         }
     }
@@ -46,11 +51,13 @@ router.get('/:id', async (req, res) => {
     }
 })
 
+/* -------------------------------------- */
+
 // POST 
 router.post('/', async (req, res) => {
-    const { description, urgency, status, created_on, category } = req.body
+    const categories = req.body
     try {
-        const newTask = await addTask(description, urgency, status, created_on, category)
+        const newTask = await addTask(categories)
         if (!newTask) {
             res.status(400).json({ message: "Unable to create task" })
         }
@@ -60,21 +67,69 @@ router.post('/', async (req, res) => {
     }  
 })
 
+/* -------------------------------------- */
+
 // PATCH 
 router.patch('/:id', async (req, res) => {
     const id = req.params.id
     const changes = req.body
 
     try {
-        const task = await getTaskById(id)
-        if (!task) {
+        const updatedTask = await updateTask(id, changes)
+        if (updatedTask[0].affectedRows === 0) {
             res.status(404).json({ message: "No task found with this id" })
         } else {
-           const updatedTask = await updateTask(id, changes)
-           res.status(200).send(updatedTask)
+            res.status(200).send(updatedTask)
         }
     } catch (err) {
         res.status(500).json({ message: err.message })
+    }
+})
+
+/* -------------------------------------- */
+
+// DELETE (by id)
+router.delete('/:id', async (req, res) => {
+    const id = req.params.id
+    try {
+        const taskToDelete = await deleteTaskById(id)
+        if (taskToDelete[0].affectedRows === 0) {
+            res.status(404).json({ message: "No task found with this id" })
+        } else {
+            res.status(200).send(taskToDelete)
+        }
+    } catch (err) {
+        res.status(500).json({ message: err.message })
+    }
+})
+
+// DELETE (all / by any field(s))
+router.delete('/', async (req, res) => {
+    const fields = req.body
+
+    if (!fields) {
+        try {
+            const result = await deleteAllTasks()
+            if (result[0].affectedRows === 0) {
+                res.status(204).send()
+            } else {
+                res.status(200).send(result)
+            }
+        } catch (err) {
+            res.status(500).json({ message: err.message })
+        }
+    } else {
+        try {
+            const taskToDelete = await deleteTaskByFields(fields)
+            console.log(taskToDelete[0].affectedRows === 0)
+            if (taskToDelete[0].affectedRows === 0) {
+                res.status(400).json({ message: "Invalid field value(s)" })
+            } else {
+                res.status(200).send(taskToDelete)
+            }
+        } catch (err) {
+            res.status(500).json({ message: err.message })
+        }
     }
 })
 

@@ -3,9 +3,9 @@
 /* TODO
 - decide if I want PUT method on tasks and users
 - add model and controller for users
-
-- incorporate loops in all functions to make number of params passed variable
-- POST: figure out how to make values optional
+- handle group assignment of tasks
+- maybe send back number of affected rows instead of query result (more informative)
+- decide if I want OR queries
 */
 
 import mysql from 'mysql2'
