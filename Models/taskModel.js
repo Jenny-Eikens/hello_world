@@ -20,7 +20,7 @@ export async function getTaskById(id) {
     return result[0]
 }
 
-// Get one task (filter by any column)
+// Get one or more tasks (filter by any column)
 export async function getTasksByFields(filters) {
 
     const filterLength = filters.length
@@ -55,7 +55,6 @@ export async function getTasksByFields(filters) {
 export async function addTask(categories) {
 
     let categoryLength = Object.entries(categories).length
-    console.log("Category length: ", categoryLength)
     const categoryArr = []
     let questionMarks = ""
     const valueArr = []
@@ -88,12 +87,11 @@ export async function addTask(categories) {
 // Update task
 export async function updateTask(id, changes) {
 
-    const changeLength = Object.entries(changes).length
-
-    if (changeLength === 0) {
+    if (!changes) {
         throw new Error ("No changes passed")
         return
     }
+    const changeLength = Object.entries(changes).length
 
     let queryString = ""
     let i = 0
@@ -108,6 +106,7 @@ export async function updateTask(id, changes) {
         }
         i++
     }
+
     const result = await pool.query(`
         UPDATE tasks
         SET ${queryString}
@@ -129,7 +128,7 @@ export async function deleteTaskById(id) {
     return result
 }
 
-// Delete task by any field
+// Delete one or more tasks by any field
 export async function deleteTaskByFields(filters) {
 
     const filterLength = filters.length

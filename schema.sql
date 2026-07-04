@@ -15,7 +15,8 @@ CREATE TABLE users (
 
 CREATE TABLE tasks (
     task_id INT PRIMARY KEY AUTO_INCREMENT,
-    description VARCHAR(254) NOT NULL, 
+    description VARCHAR(254) NOT NULL 
+        CHECK (LENGTH(TRIM(description)) > 0), 
     urgency VARCHAR(7) NOT NULL,
     status VARCHAR(11) NOT NULL DEFAULT 'new',
     created_on TIMESTAMP NOT NULL DEFAULT NOW(),
@@ -26,7 +27,7 @@ CREATE TABLE tasks (
     CONSTRAINT status_constraint 
         CHECK (status IN ('new', 'in progress', 'complete', 'cancelled')),
     CONSTRAINT category_constraint 
-        CHECK (category IN ('finances', 'household', 'health', 'work', 'birthday', 'other')),
+        CHECK (category IN ('finances', 'household', 'health', 'birthday', 'other')),
     CONSTRAINT urgency_constraint 
         CHECK (urgency IN ('extreme', 'high', 'medium', 'low'))
 );

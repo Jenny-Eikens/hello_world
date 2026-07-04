@@ -14,6 +14,7 @@ import express from 'express'
 import tasks from './Controllers/taskController.js'
 
 const app = express()
+const PORT = 4242
 app.use(express.json())
 dotenv.config()
 
@@ -35,4 +36,4 @@ function errorHandler(err, req, res, next) {
   res.render('error', { error: err });
 }
 
-app.listen(3000, () => console.log('Server is running on port 3000'))
+app.listen(PORT, () => console.log(`Server is running on port ${PORT}`))
