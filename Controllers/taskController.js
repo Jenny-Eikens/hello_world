@@ -61,7 +61,7 @@ router.post('/', async (req, res) => {
         if (!newTask) {
             res.status(400).json({ message: "Unable to create task" })
         }
-        res.status(201).send(newTask)
+        res.status(201).json({ message: "New task successfully added! "})
     } catch (err) {
         res.status(500).json({ message: err.message })
     }  

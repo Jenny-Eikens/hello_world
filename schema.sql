@@ -5,13 +5,18 @@ CREATE TABLE users (
     user_id INT PRIMARY KEY AUTO_INCREMENT,
     first_name VARCHAR(30) NOT NULL,
     last_name VARCHAR(30) NOT NULL,
-    user_name VARCHAR(61)
-        GENERATED ALWAYS AS (CONCAT(first_name, '.', last_name)) STORED,
+    user_name VARCHAR(61) NOT NULL,
     email VARCHAR(254) NOT NULL,
     user_group_id INT,
     PRIMARY KEY (group_id),
     FOREIGN KEY (user_group_id) REFERENCES groups_list(group_id)
 );
+
+CREATE TRIGGER before_user_insert
+BEFORE INSERT ON users
+FOR EACH ROW
+SET NEW.user_name = CONCAT(NEW.first_name, '.', NEW.last_name);
+
 
 CREATE TABLE tasks (
     task_id INT PRIMARY KEY AUTO_INCREMENT,

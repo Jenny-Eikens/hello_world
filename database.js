@@ -1,7 +1,6 @@
 // All database code (pool, queries) goes in this file
 
 /* TODO
-- decide if I want PUT method on tasks and users
 - add model and controller for users
 - handle group assignment of tasks
 - maybe send back number of affected rows instead of query result (more informative)
@@ -12,6 +11,7 @@ import mysql from 'mysql2'
 import dotenv from 'dotenv'
 import express from 'express'
 import tasks from './Controllers/taskController.js'
+import users from './Controllers/userController.js'
 
 const app = express()
 const PORT = 4242
@@ -19,6 +19,7 @@ app.use(express.json())
 dotenv.config()
 
 app.use('/tasks', tasks)
+app.use('/users', users)
 
 
 export const pool = mysql.createPool({

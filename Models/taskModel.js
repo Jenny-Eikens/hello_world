@@ -55,7 +55,7 @@ export async function getTasksByFields(filters) {
 export async function addTask(categories) {
 
     let categoryLength = Object.entries(categories).length
-    const categoryArr = []
+    const fieldArr = []
     let questionMarks = ""
     const valueArr = []
     let i = 0
@@ -65,7 +65,7 @@ export async function addTask(categories) {
             throw new Error ("Invalid field")
             continue
         }
-        categoryArr.push(key)
+        fieldArr.push(key)
         valueArr.push(categories[key])
         questionMarks += "?"
         if (i < categoryLength - 1) {
@@ -75,7 +75,7 @@ export async function addTask(categories) {
     }
 
     const result = await pool.query(`
-    INSERT INTO tasks (${[...categoryArr]})
+    INSERT INTO tasks (${[...fieldArr]})
     VALUES (${questionMarks})
     `, [...valueArr])
     return result
