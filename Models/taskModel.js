@@ -121,40 +121,37 @@ export async function updateTask(id, changes) {
 // Delete task by id
 
 export async function deleteTaskById(id) {
-    const result = await pool.query(`
+    const [result] = await pool.query(`
         DELETE FROM tasks
         WHERE task_id = ?
     `, [id])
     return result
 }
 
-// Delete one or more tasks by any field
-export async function deleteTaskByFields(filters) {
-
+// Delete one or more tasks by any field(s)
+export async function deleteTasksByFields(filters) {
     const filterLength = filters.length
     let queryString = ""
     const valueArr = []
-    let i = 0
 
     if (filterLength === 0) {
         throw new Error ("No values passed")
         return
     }
 
-    for (let key in filters) {
-        if (!allowed.includes(key)) {
-            throw new Error ("Invalid field")
-            continue
-        }
-        queryString += `${key} = ?`
-        valueArr.push(filters[key])
+    for (let i = 0; i < filterLength; i++) {
+        const field = filters[i][0]
+        const value = filters[i][1]
+
+        queryString += `${field} = ?`
+        valueArr.push(value)
+
         if (i < filterLength - 1) {
-            queryString += " AND "
+            queryString += ' AND '
         }
-        i++
     }
 
-    const result = await pool.query(`
+    const [result] = await pool.query(`
         DELETE FROM tasks
         WHERE ${queryString}
     `, [...valueArr])

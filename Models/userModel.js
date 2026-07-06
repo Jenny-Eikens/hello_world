@@ -34,12 +34,12 @@ export async function getUsersByFields(filters) {
             continue
         }
         queryString += `${field} = ?`
-        valueArr.push(value)
         if (i < filterLength - 1) {
-            queryString += " AND "
+            queryString += ' AND '
         }
-    }
-
+        valueArr.push(value)
+    }      
+       
     const [result] = await pool.query(`
         SELECT * FROM users
         WHERE ${queryString}
@@ -129,3 +129,46 @@ export async function updateUser(id, changes) {
 
 // DELETE
 // Delete user by id
+export async function deleteUserById(id) {
+    const [result] = await pool.query(`
+        DELETE FROM users
+        WHERE user_id = ?
+    `, [id])
+    return result
+}
+
+// Delete one or more users by any field(s)
+export async function deleteUsersByFields(filters) {
+    const filterLength = filters.length
+    let queryString = ""
+    const valueArr = []
+
+    if (filterLength === 0) {
+        throw new Error ("No values passed")
+        return
+    }
+
+    for (let i = 0; i < filterLength; i++) {
+        const field = filters[i][0]
+        const value = filters[i][1]
+
+        queryString += `${field} = ?`
+        valueArr.push(value)
+
+        if (i < filterLength - 1) {
+            queryString += ' AND '
+        }
+    }
+
+    const [result] = await pool.query(`
+        DELETE FROM users 
+        WHERE ${queryString}
+    `, [...valueArr])
+    return result
+}
+
+// Delete all users
+export async function deleteAllUsers() {
+    const result = await pool.query('DELETE FROM users')
+    return result
+}

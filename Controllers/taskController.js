@@ -1,7 +1,7 @@
 // Controllers get data from model & control what a route does (what gets sent back etc.)
 
 import express from 'express'
-import { getAllTasks, getTaskById, getTasksByFields, addTask, updateTask, deleteTaskById, deleteTaskByFields, deleteAllTasks } from '../Models/taskModel.js'
+import { getAllTasks, getTaskById, getTasksByFields, addTask, updateTask, deleteTaskById, deleteTasksByFields, deleteAllTasks } from '../Models/taskModel.js'
 
 const router = express.Router()
 
@@ -93,10 +93,10 @@ router.delete('/:id', async (req, res) => {
     const id = req.params.id
     try {
         const taskToDelete = await deleteTaskById(id)
-        if (taskToDelete[0].affectedRows === 0) {
+        if (taskToDelete.affectedRows === 0) {
             res.status(404).json({ message: "No task found with this id" })
         } else {
-            res.status(200).send(taskToDelete)
+            res.status(200).json({ message: `Task with id ${id} successfully deleted` })
         }
     } catch (err) {
         res.status(500).json({ message: err.message })
@@ -105,27 +105,26 @@ router.delete('/:id', async (req, res) => {
 
 // DELETE (all / by any field(s))
 router.delete('/', async (req, res) => {
-    const fields = req.body
+    const filters = Object.entries(req.query)
 
-    if (!fields) {
+    if (filters.length === 0) {
         try {
             const result = await deleteAllTasks()
-            if (result[0].affectedRows === 0) {
+            if (result.affectedRows === 0) {
                 res.status(204).send()
             } else {
-                res.status(200).send(result)
+                res.status(200).json({ message: "All tasks successfully deleted" })
             }
         } catch (err) {
             res.status(500).json({ message: err.message })
         }
     } else {
         try {
-            const taskToDelete = await deleteTaskByFields(fields)
-            console.log(taskToDelete[0].affectedRows === 0)
-            if (taskToDelete[0].affectedRows === 0) {
+            const tasksToDelete = await deleteTasksByFields(filters)
+            if (tasksToDelete.affectedRows === 0) {
                 res.status(400).json({ message: "Invalid field value(s)" })
             } else {
-                res.status(200).send(taskToDelete)
+                res.status(200).json({ message: `${tasksToDelete.affectedRows} task(s) successfully deleted`})
             }
         } catch (err) {
             res.status(500).json({ message: err.message })
