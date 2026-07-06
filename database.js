@@ -1,8 +1,8 @@
 // All database code (pool, queries) goes in this file
 
 /* TODO
-- add model and controller for users
-- handle group assignment of tasks
+- assign groups to tasks
+- figure out how to create GUID / UUID
 - maybe send back number of affected rows instead of query result (more informative)
 - decide if I want OR queries
 */

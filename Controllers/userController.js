@@ -103,6 +103,7 @@ router.delete('/:id', async (req, res) => {
     }
 })
 
+// DELETE (all / by any field(s))
 router.delete('/', async (req, res) => {
     const filters = Object.entries(req.query)
 

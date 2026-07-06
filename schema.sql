@@ -7,7 +7,7 @@ CREATE TABLE users (
     last_name VARCHAR(30) NOT NULL,
     user_name VARCHAR(61) NOT NULL,
     email VARCHAR(254) NOT NULL,
-    user_group_id INT,
+    user_group_id INT NOT NULL,
     PRIMARY KEY (group_id),
     FOREIGN KEY (user_group_id) REFERENCES groups_list(group_id)
 );
