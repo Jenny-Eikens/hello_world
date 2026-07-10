@@ -30,7 +30,7 @@ export async function getUsersByFields(filters) {
         const field = filters[i][0]
         const value = filters[i][1]
         if (!allowed.includes(field)) {
-            throw new Error ("Invalid field")
+            throw new Error("Invalid field")
             continue
         }
         queryString += `${field} = ?`
@@ -38,8 +38,8 @@ export async function getUsersByFields(filters) {
             queryString += ' AND '
         }
         valueArr.push(value)
-    }      
-       
+    }
+
     const [result] = await pool.query(`
         SELECT * FROM users
         WHERE ${queryString}
@@ -55,33 +55,27 @@ export async function addUser(categories) {
     let categoryLength = Object.entries(categories).length
 
     if (categoryLength === 0) {
-        throw new Error ("No fields passed")
-        return 
+        throw new Error("No fields passed")
+        return
     }
 
     const fieldArr = []
-    let questionMarks = ""
     const valueArr = []
-    let i = 0
 
     for (let key in categories) {
         if (!allowed.includes(key)) {
-            throw new Error ("Invalid field")
+            throw new Error("Invalid field")
             continue
         }
         fieldArr.push(key)
-        questionMarks += "?"
         valueArr.push(categories[key])
-
-        if (i < categoryLength - 1) {
-            questionMarks += ", "
-        }
-        i++
     }
+
+    const placeholders = valueArr.map(() => "?").join(", ")
 
     const result = await pool.query(`
         INSERT INTO users (${[...fieldArr]})
-        VALUES (${questionMarks})
+        VALUES (${placeholders})
     `, [...valueArr])
     return result
 }
@@ -94,7 +88,7 @@ export async function addUser(categories) {
 export async function updateUser(id, changes) {
 
     if (!changes) {
-        throw new Error ("No changes passed")
+        throw new Error("No changes passed")
         return
     }
 
@@ -115,7 +109,7 @@ export async function updateUser(id, changes) {
         }
         i++
     }
-    
+
 
     const result = await pool.query(`
         UPDATE users
@@ -144,7 +138,7 @@ export async function deleteUsersByFields(filters) {
     const valueArr = []
 
     if (filterLength === 0) {
-        throw new Error ("No values passed")
+        throw new Error("No values passed")
         return
     }
 

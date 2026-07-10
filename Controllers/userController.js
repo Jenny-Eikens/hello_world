@@ -14,8 +14,8 @@ router.get('/', async (req, res) => {
             if (users.length === 0) {
                 res.status(204).send()
             } else {
-            res.status(200).send(users)
-        }
+                res.status(200).send(users)
+            }
         } catch (err) {
             res.status(500).json({ message: err.message })
         }
@@ -96,7 +96,7 @@ router.delete('/:id', async (req, res) => {
         if (userToDelete.affectedRows === 0) {
             res.status(404).json({ message: "No user found with this id" })
         } else {
-            res.status(200).json({ message: `User with id ${id} successfully deleted`})
+            res.status(200).json({ message: `User with id ${id} successfully deleted` })
         }
     } catch (err) {
         res.status(500).json({ message: err.message })

@@ -1,12 +1,5 @@
 // All database code (pool, queries) goes in this file
 
-/* TODO
-- assign groups to tasks
-- figure out how to create GUID / UUID
-- maybe send back number of affected rows instead of query result (more informative)
-- decide if I want OR queries
-*/
-
 import mysql from 'mysql2'
 import dotenv from 'dotenv'
 import express from 'express'
@@ -23,10 +16,10 @@ app.use('/users', users)
 
 
 export const pool = mysql.createPool({
-    host: process.env.MYSQL_HOST,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DATABASE
+  host: process.env.MYSQL_HOST,
+  user: process.env.MYSQL_USER,
+  password: process.env.MYSQL_PASSWORD,
+  database: process.env.MYSQL_DATABASE
 }).promise()
 
 function errorHandler(err, req, res, next) {

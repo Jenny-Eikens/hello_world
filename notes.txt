@@ -1,0 +1,14 @@
+TODO
+
+- figure out how to create GUID / UUID
+
+- maybe send back number of affected rows instead of query result (more informative)
+
+- maybe construct question marks as array based on length instead of string
+- maybe construct queryString via map instead of loop
+
+- add function for selecting all tags of a tasks AND all tasks associated with one tag
+
+- maybe check validity of tags before query
+- add post method for tags table (optional: trigger from addTaskTags?)
+- add delete method for tags table

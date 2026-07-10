@@ -2,7 +2,7 @@
 
 import { pool } from '../database.js'
 
-const allowed = ["task_id", "description", "urgency", "status", "created_on", "category", "task_group_id"]
+const allowed = ["task_id", "description", "urgency", "status", "created_on", "category", "task_group_id", "tags"]
 
 // GET
 // Get all tasks
@@ -31,8 +31,7 @@ export async function getTasksByFields(filters) {
         const field = filters[i][0]
         const value = filters[i][1]
         if (!allowed.includes(field)) {
-            throw new Error ("Invalid field")
-            continue
+            throw new Error(`Invalid field '${field}'`)
         }
         queryString += `${field} = ?`
         if (i < filterLength - 1) {
@@ -50,34 +49,68 @@ export async function getTasksByFields(filters) {
 
 /* -------------------------------------- */
 
+// POST 
+// Insert task tags into junction table
+export async function addTaskTags(id, tags) {
+    // avoid duplicate entries
+    const uniqueTags = new Set([tags].flat())
+    const queryTags = [...uniqueTags]
+
+    const queryString = queryTags.map(() => "name = ?").join(" OR ")
+
+    // returns array of objects with key 'tag_id'
+    const [tagIds] = await pool.query(`
+          SELECT tag_id FROM tags
+          WHERE ${queryString} 
+        `, [...queryTags])
+
+
+    if (tagIds.length < queryTags.length) {
+        throw new Error("Some tags are invalid")
+    }
+    // creates nested arrays [task_id, tag_id]
+    const valueArr = tagIds.map((tagId) => [id, tagId.tag_id])
+
+    await pool.query(`
+          INSERT INTO task_tags (task_id, tag_id)  
+          VALUES ?
+        `, [valueArr])
+}
+
 // POST
 // Add task
 export async function addTask(categories) {
 
     let categoryLength = Object.entries(categories).length
+    if (categories.tags) {
+        categoryLength--
+    }
     const fieldArr = []
-    let questionMarks = ""
     const valueArr = []
-    let i = 0
 
     for (let key in categories) {
         if (!allowed.includes(key)) {
-            throw new Error ("Invalid field")
+            throw new Error(`Invalid field '${key}'`)
+            continue
+        }
+        if (key === "tags") {
             continue
         }
         fieldArr.push(key)
         valueArr.push(categories[key])
-        questionMarks += "?"
-        if (i < categoryLength - 1) {
-            questionMarks += ", "
-        }
-        i++
+    }
+    const placeholders = valueArr.map(() => "?").join(", ")
+
+    const [result] = await pool.query(`
+    INSERT INTO tasks (${[...fieldArr]})
+    VALUES (${placeholders})
+    `, [...valueArr])
+
+
+    if (categories.tags) {
+        await addTaskTags(result.insertId, categories.tags)
     }
 
-    const result = await pool.query(`
-    INSERT INTO tasks (${[...fieldArr]})
-    VALUES (${questionMarks})
-    `, [...valueArr])
     return result
 }
 
@@ -88,8 +121,7 @@ export async function addTask(categories) {
 export async function updateTask(id, changes) {
 
     if (!changes) {
-        throw new Error ("No changes passed")
-        return
+        throw new Error("No changes passed")
     }
     const changeLength = Object.entries(changes).length
 
@@ -97,8 +129,7 @@ export async function updateTask(id, changes) {
     let i = 0
     for (let key in changes) {
         if (!allowed.includes(key)) {
-            throw new Error ("Invalid field")
-            continue
+            throw new Error(`Invalid field '${key}'`)
         }
         queryString += `${key} = '${changes[key]}'`
         if (i < changeLength - 1) {
@@ -112,7 +143,7 @@ export async function updateTask(id, changes) {
         SET ${queryString}
         WHERE task_id = ?
         `, [id])
-        return result
+    return result
 }
 
 /* -------------------------------------- */
@@ -135,8 +166,7 @@ export async function deleteTasksByFields(filters) {
     const valueArr = []
 
     if (filterLength === 0) {
-        throw new Error ("No values passed")
-        return
+        throw new Error("No values passed")
     }
 
     for (let i = 0; i < filterLength; i++) {
