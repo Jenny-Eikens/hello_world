@@ -97,18 +97,14 @@ export async function addTaskTags(id, tags) {
           WHERE ${queryString} 
         `, [...queryTags])
 
-
-    // replace this with validity check in controller
-    if (tagIds.length < queryTags.length) {
-        throw new Error("Some tags are invalid")
-    }
     // creates nested arrays [task_id, tag_id]
     const valueArr = tagIds.map((tagId) => [id, tagId.tag_id])
 
-    await pool.query(`
+    const [result] = await pool.query(`
           INSERT INTO task_tags (task_id, tag_id)  
           VALUES ?
         `, [valueArr])
+    return result
 }
 
 /* -------------------------------------- */

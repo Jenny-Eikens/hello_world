@@ -2,6 +2,10 @@ import { pool } from '../database.js';
 
 // GET
 // Get all tags
+export async function getAllTags() {
+    const [result] = await pool.query('SELECT * FROM tags')
+    return result
+}
 // Get one tag (filter by id)
 
 

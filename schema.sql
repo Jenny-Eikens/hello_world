@@ -8,7 +8,6 @@ CREATE TABLE users (
     user_name VARCHAR(61) NOT NULL,
     email VARCHAR(254) NOT NULL,
     user_group_id INT NOT NULL,
-    PRIMARY KEY (group_id),
     FOREIGN KEY (user_group_id) REFERENCES groups_list(group_id)
 );
 
@@ -27,7 +26,6 @@ CREATE TABLE tasks (
     created_on TIMESTAMP NOT NULL DEFAULT NOW(),
     category VARCHAR(10) NOT NULL DEFAULT 'other',
     task_group_id INT,
-    PRIMARY KEY (group_id),
     FOREIGN KEY (task_group_id) REFERENCES groups_list(group_id),
     CONSTRAINT status_constraint 
         CHECK (status IN ('new', 'in progress', 'complete', 'cancelled')),
@@ -51,25 +49,6 @@ CREATE TABLE tags (
 CREATE TABLE task_tags (
     task_id INT,
     tag_id INT,
-    PRIMARY KEY (task_id, tag_id),
-    FOREIGN KEY (task_id) REFERENCES tasks(task_id),
-    FOREIGN KEY (tag_id) REFERENCES tags(tag_id)
+    FOREIGN KEY (task_id) REFERENCES tasks(task_id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES tags(tag_id) ON DELETE CASCADE
 );
-
--- INSERT INTO users (first_name, last_name, email)
--- VALUES ('Mary', 'Smith', 'msmith@gmail.com');
-
--- INSERT INTO tasks (description, urgency, category)
--- VALUES ('Finish documentation', 'medium', 'work');
-
--- INSERT INTO groups_list (name, description) 
--- VALUES ('Party planning committee', 'Group for planning and hosting parties');
-
--- INSERT INTO tags (name)
--- VALUES 
--- ('fun'),
--- ('time-consuming'),
--- ('tedious');
-
--- INSERT INTO task_tags
--- VALUES (1, 1);

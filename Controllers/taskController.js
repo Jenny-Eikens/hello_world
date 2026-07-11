@@ -2,6 +2,7 @@
 
 import express from 'express'
 import { getAllTasks, getTaskById, getTasksByFields, addTask, addTaskTags, updateTask, deleteTaskById, deleteTasksByFields, deleteAllTasks } from '../Models/taskModel.js'
+import { getAllTags } from '../Models/tagModel.js'
 
 const router = express.Router()
 
@@ -63,15 +64,36 @@ router.post('/', async (req, res) => {
         if (!newTask) {
             res.status(400).json({ message: "Unable to create task" })
         }
+        // if request includes tags, check validity by searching tags table
         if (tags) {
-            // query all tags, for of loop with continue if invalid tag
             try {
-                const newTags = await addTaskTags(newTask.insertId, tags)
-                res.status(201).json({ message: "New task and tags successfully added!" })
+                const validTags = await getAllTags()
+                const tagsToAdd = []
+                let messageArr = []
+                let returnMessage = ""
+                for (const tag of tags) {
+                    const isValid = validTags.find((validTag) => validTag.name === tag)
+                    if (!isValid) {
+                        messageArr.push(tag)
+                        continue
+                    }
+                    tagsToAdd.push(tag)
+                }
+                // update junction table (task + tag) with valid tags
+                const newTags = await addTaskTags(newTask.insertId, tagsToAdd)
+                if (newTags.affectedRows === 0) {
+                    throw new Error("Failed to add new tags")
+                }
+                if (messageArr.length > 0) {
+                    returnMessage = `Invalid tag(s): '${messageArr.join(", ")}'. \n Task added without these tags.`
+                } else {
+                    returnMessage = 'New task and tags successfully added!'
+                }
+                res.status(201).json({ message: returnMessage })
             } catch (err) {
                 res.status(500).json({ message: err.message })
             }
-        } else {
+        } else { // executes if request doesn't include tags
             res.status(201).json({ message: "New task successfully added! " })
         }
     } catch (err) {
