@@ -56,7 +56,6 @@ export async function addUser(categories) {
 
     if (categoryLength === 0) {
         throw new Error("No fields passed")
-        return
     }
 
     const fieldArr = []
@@ -72,9 +71,10 @@ export async function addUser(categories) {
     }
 
     const placeholders = valueArr.map(() => "?").join(", ")
+    const fields = fieldArr.join(", ")
 
     const result = await pool.query(`
-        INSERT INTO users (${[...fieldArr]})
+        INSERT INTO users (${fields})
         VALUES (${placeholders})
     `, [...valueArr])
     return result

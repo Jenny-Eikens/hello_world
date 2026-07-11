@@ -5,6 +5,7 @@ import dotenv from 'dotenv'
 import express from 'express'
 import tasks from './Controllers/taskController.js'
 import users from './Controllers/userController.js'
+import tags from './Controllers/tagController.js'
 
 const app = express()
 const PORT = 4242
@@ -13,6 +14,7 @@ dotenv.config()
 
 app.use('/tasks', tasks)
 app.use('/users', users)
+app.use('/tags', tags)
 
 
 export const pool = mysql.createPool({

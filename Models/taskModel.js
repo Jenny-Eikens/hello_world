@@ -49,6 +49,39 @@ export async function getTasksByFields(filters) {
 
 /* -------------------------------------- */
 
+// POST
+// Add task
+export async function addTask(categories) {
+    let categoryLength = Object.entries(categories).length
+
+    if (categoryLength === 0) {
+        throw new Error("No fields passed")
+    }
+
+    const fieldArr = []
+    const valueArr = []
+
+    for (let key in categories) {
+        if (!allowed.includes(key)) {
+            throw new Error(`Invalid field '${key}'`)
+            continue
+        }
+        if (key === "tags") {
+            continue
+        }
+        fieldArr.push(key)
+        valueArr.push(categories[key])
+    }
+    const placeholders = valueArr.map(() => "?").join(", ")
+    const fields = fieldArr.join(", ")
+
+    const [result] = await pool.query(`
+    INSERT INTO tasks (${fields})
+    VALUES (${placeholders})
+    `, [...valueArr])
+    return result
+}
+
 // POST 
 // Insert task tags into junction table
 export async function addTaskTags(id, tags) {
@@ -65,6 +98,7 @@ export async function addTaskTags(id, tags) {
         `, [...queryTags])
 
 
+    // replace this with validity check in controller
     if (tagIds.length < queryTags.length) {
         throw new Error("Some tags are invalid")
     }
@@ -75,43 +109,6 @@ export async function addTaskTags(id, tags) {
           INSERT INTO task_tags (task_id, tag_id)  
           VALUES ?
         `, [valueArr])
-}
-
-// POST
-// Add task
-export async function addTask(categories) {
-
-    let categoryLength = Object.entries(categories).length
-    if (categories.tags) {
-        categoryLength--
-    }
-    const fieldArr = []
-    const valueArr = []
-
-    for (let key in categories) {
-        if (!allowed.includes(key)) {
-            throw new Error(`Invalid field '${key}'`)
-            continue
-        }
-        if (key === "tags") {
-            continue
-        }
-        fieldArr.push(key)
-        valueArr.push(categories[key])
-    }
-    const placeholders = valueArr.map(() => "?").join(", ")
-
-    const [result] = await pool.query(`
-    INSERT INTO tasks (${[...fieldArr]})
-    VALUES (${placeholders})
-    `, [...valueArr])
-
-
-    if (categories.tags) {
-        await addTaskTags(result.insertId, categories.tags)
-    }
-
-    return result
 }
 
 /* -------------------------------------- */

@@ -121,10 +121,11 @@ router.delete('/', async (req, res) => {
     } else {
         try {
             const usersToDelete = await deleteUsersByFields(filters)
-            if (usersToDelete.affectedRows === 0) {
+            const affectedRows = usersToDelete.affectedRows
+            if (affectedRows === 0) {
                 res.status(400).json({ message: "Invalid field value(s)" })
             } else {
-                res.status(200).json({ message: `${usersToDelete.affectedRows} user(s) successfully deleted` })
+                res.status(200).json({ message: `${affectedRows} user(s) successfully deleted` })
             }
         } catch (err) {
             res.status(500).json({ message: err.message })

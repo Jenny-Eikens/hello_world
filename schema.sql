@@ -45,7 +45,7 @@ CREATE TABLE groups_list (
 
 CREATE TABLE tags (
     tag_id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(80) NOT NULL
+    name VARCHAR(80) UNIQUE NOT NULL
 );
 
 CREATE TABLE task_tags (

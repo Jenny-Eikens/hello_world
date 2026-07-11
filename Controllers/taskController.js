@@ -1,7 +1,7 @@
 // Controllers get data from model & control what a route does (what gets sent back etc.)
 
 import express from 'express'
-import { getAllTasks, getTaskById, getTasksByFields, addTask, updateTask, deleteTaskById, deleteTasksByFields, deleteAllTasks } from '../Models/taskModel.js'
+import { getAllTasks, getTaskById, getTasksByFields, addTask, addTaskTags, updateTask, deleteTaskById, deleteTasksByFields, deleteAllTasks } from '../Models/taskModel.js'
 
 const router = express.Router()
 
@@ -24,7 +24,7 @@ router.get('/', async (req, res) => {
         try {
             const tasks = await getTasksByFields(filters)
             if (tasks.length === 0) {
-                res.status(404).json({ message: "No matching task(s) found"})
+                res.status(404).json({ message: "No matching task(s) found" })
             } else {
                 res.status(200).send(tasks)
             }
@@ -56,15 +56,27 @@ router.get('/:id', async (req, res) => {
 // POST 
 router.post('/', async (req, res) => {
     const categories = req.body
+    const { tags } = req.body
+
     try {
         const newTask = await addTask(categories)
         if (!newTask) {
             res.status(400).json({ message: "Unable to create task" })
         }
-        res.status(201).json({ message: "New task successfully added! "})
+        if (tags) {
+            // query all tags, for of loop with continue if invalid tag
+            try {
+                const newTags = await addTaskTags(newTask.insertId, tags)
+                res.status(201).json({ message: "New task and tags successfully added!" })
+            } catch (err) {
+                res.status(500).json({ message: err.message })
+            }
+        } else {
+            res.status(201).json({ message: "New task successfully added! " })
+        }
     } catch (err) {
         res.status(500).json({ message: err.message })
-    }  
+    }
 })
 
 /* -------------------------------------- */
@@ -75,11 +87,12 @@ router.patch('/:id', async (req, res) => {
     const changes = req.body
 
     try {
-        const updatedTask = await updateTask(id, changes)
-        if (updatedTask[0].affectedRows === 0) {
+        const [updatedTask] = await updateTask(id, changes)
+        const affectedRows = updatedTask.affectedRows
+        if (affectedRows === 0) {
             res.status(404).json({ message: "No task found with this id" })
         } else {
-            res.status(200).send(updatedTask)
+            res.status(200).json({ message: "Entry successfully updated" })
         }
     } catch (err) {
         res.status(500).json({ message: err.message })
@@ -121,10 +134,11 @@ router.delete('/', async (req, res) => {
     } else {
         try {
             const tasksToDelete = await deleteTasksByFields(filters)
-            if (tasksToDelete.affectedRows === 0) {
+            const affectedRows = tasksToDelete.affectedRows
+            if (affectedRows === 0) {
                 res.status(400).json({ message: "Invalid field value(s)" })
             } else {
-                res.status(200).json({ message: `${tasksToDelete.affectedRows} task(s) successfully deleted`})
+                res.status(200).json({ message: `${affectedRows} task(s) successfully deleted` })
             }
         } catch (err) {
             res.status(500).json({ message: err.message })
