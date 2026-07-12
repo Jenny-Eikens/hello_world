@@ -1,7 +1,7 @@
 // Controllers get data from model & control what a route does (what gets sent back etc.)
 
 import express from 'express'
-import { getAllTasks, getTaskById, getTasksByFields, addTask, addTaskTags, updateTask, deleteTaskById, deleteTasksByFields, deleteAllTasks } from '../Models/taskModel.js'
+import { getAllTasks, getTaskById, getTasksByFields, addTask, addTaskTags, updateTask, deleteTaskById, deleteTasksByFields, deleteTaskTags, deleteAllTasks } from '../Models/taskModel.js'
 import { getAllTags } from '../Models/tagModel.js'
 
 const router = express.Router()
@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
             if (tasks.length === 0) {
                 res.status(204).send()
             } else {
-                res.status(200).send(tasks[0])
+                res.status(200).send(tasks)
             }
         } catch (err) {
             res.status(500).json({ message: err.message })
@@ -30,7 +30,6 @@ router.get('/', async (req, res) => {
                 res.status(200).send(tasks)
             }
         } catch (err) {
-            console.log(err)
             res.status(500).json({ message: err.message })
         }
     }
@@ -57,44 +56,43 @@ router.get('/:id', async (req, res) => {
 // POST 
 router.post('/', async (req, res) => {
     const categories = req.body
-    const { tags } = req.body
+    const tags = categories.tags
 
     try {
         const newTask = await addTask(categories)
         if (!newTask) {
             res.status(400).json({ message: "Unable to create task" })
-        }
-        // if request includes tags, check validity by searching tags table
-        if (tags) {
-            try {
-                const validTags = await getAllTags()
-                const tagsToAdd = []
-                let messageArr = []
-                let returnMessage = ""
-                for (const tag of tags) {
-                    const isValid = validTags.find((validTag) => validTag.name === tag)
-                    if (!isValid) {
-                        messageArr.push(tag)
-                        continue
+        } else {
+            if (tags) {
+                try {
+                    // check validity of tags
+                    const validTags = await getAllTags()
+                    const tagsToAdd = []
+                    let messageArr = []
+                    let returnMessage = ""
+                    for (const tag of tags) {
+                        const isValid = validTags.find((validTag) => validTag.name === tag)
+                        if (!isValid) {
+                            messageArr.push(tag)
+                            continue
+                        }
+                        tagsToAdd.push(tag)
                     }
-                    tagsToAdd.push(tag)
+
+                    // update junction table (task + tag) with valid tags
+                    const newTags = await addTaskTags(newTask.insertId, tagsToAdd)
+                    if (messageArr.length > 0) {
+                        returnMessage = `Invalid tag(s): '${messageArr.join(", ")}'. \n Task added without these tags.`
+                    } else {
+                        returnMessage = 'New task and tags successfully added!'
+                    }
+                    res.status(201).json({ message: returnMessage })
+                } catch (err) {
+                    res.status(500).json({ message: err.message })
                 }
-                // update junction table (task + tag) with valid tags
-                const newTags = await addTaskTags(newTask.insertId, tagsToAdd)
-                if (newTags.affectedRows === 0) {
-                    throw new Error("Failed to add new tags")
-                }
-                if (messageArr.length > 0) {
-                    returnMessage = `Invalid tag(s): '${messageArr.join(", ")}'. \n Task added without these tags.`
-                } else {
-                    returnMessage = 'New task and tags successfully added!'
-                }
-                res.status(201).json({ message: returnMessage })
-            } catch (err) {
-                res.status(500).json({ message: err.message })
+            } else { // executes if request doesn't include tags
+                res.status(201).json({ message: "New task successfully added! " })
             }
-        } else { // executes if request doesn't include tags
-            res.status(201).json({ message: "New task successfully added! " })
         }
     } catch (err) {
         res.status(500).json({ message: err.message })
@@ -107,14 +105,46 @@ router.post('/', async (req, res) => {
 router.patch('/:id', async (req, res) => {
     const id = req.params.id
     const changes = req.body
+    const tags = changes.tags
 
     try {
-        const [updatedTask] = await updateTask(id, changes)
-        const affectedRows = updatedTask.affectedRows
-        if (affectedRows === 0) {
+        const updatedTask = await updateTask(id, changes)
+        if (updatedTask.affectedRows === 0) {
             res.status(404).json({ message: "No task found with this id" })
         } else {
-            res.status(200).json({ message: "Entry successfully updated" })
+            if (tags) {
+                try {
+                    // delete existing entries from junction table
+                    const deletedTaskTags = await deleteTaskTags(id)
+
+                    // check validity of tags
+                    const validTags = await getAllTags()
+                    const tagsToAdd = []
+                    let messageArr = []
+                    let returnMessage = ""
+                    for (const tag of tags) {
+                        const isValid = validTags.find((validTag) => validTag.name === tag)
+                        if (!isValid) {
+                            messageArr.push(tag)
+                            continue
+                        }
+                        tagsToAdd.push(tag)
+                    }
+
+                    // update junction table (task + tag) with valid tags
+                    const newTags = await addTaskTags(id, tagsToAdd)
+                    if (messageArr.length > 0) {
+                        returnMessage = `Invalid tag(s): '${messageArr.join(", ")}'. \n Task updated without adding these tags.`
+                    } else {
+                        returnMessage = 'Task and tags successfully updated!'
+                    }
+                    res.status(200).json({ message: returnMessage })
+                } catch (err) {
+                    res.status(500).json({ message: err.message })
+                }
+            } else { // executes if request doesn't include tags
+                res.status(200).json({ message: "Entry successfully updated" })
+            }
         }
     } catch (err) {
         res.status(500).json({ message: err.message })
