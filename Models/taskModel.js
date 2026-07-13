@@ -17,7 +17,7 @@ export async function getTaskById(id) {
         SELECT * FROM tasks
         WHERE task_id = ? 
     `, [id])
-    return result[0]
+    return result
 }
 
 // Get one or more tasks (filter by any column)
@@ -45,6 +45,18 @@ export async function getTasksByFields(filters) {
         WHERE ${queryString}
     `, [...valueArr])
     return result[0]
+}
+
+// Get all tags associated with a task
+export async function getTaskTags(description) {
+    const [result] = await pool.query(`
+        SELECT tasks.description AS Task, tags.name AS Tag
+        FROM tasks
+        JOIN task_tags ON tasks.task_id = task_tags.task_id
+        JOIN tags ON tags.tag_id = task_tags.tag_id
+        WHERE tasks.description = ?
+    `, [description])
+    return result
 }
 
 /* -------------------------------------- */
@@ -77,7 +89,7 @@ export async function addTask(categories) {
 
     const [result] = await pool.query(`
     INSERT INTO tasks (${fields})
-    VALUES (${placeholders})
+    VALUES (${placeholders}) 
     `, [...valueArr])
     return result
 }
@@ -131,8 +143,6 @@ export async function updateTask(id, changes) {
         }
         i++
     }
-
-    console.log(queryString)
 
     const [result] = await pool.query(`
         UPDATE tasks

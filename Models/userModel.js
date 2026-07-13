@@ -47,6 +47,17 @@ export async function getUsersByFields(filters) {
     return result
 }
 
+// Get all tasks assigned to a user (via groups table)
+export async function getUserTasks(userName) {
+    const [result] = await pool.query(`
+        SELECT users.user_name AS User, tasks.description AS Task
+        FROM users
+        JOIN tasks ON users.user_group_id = tasks.task_group_id
+        WHERE users.user_name = ?
+    `, [userName])
+    return result
+}
+
 /* -------------------------------------- */
 
 // POST

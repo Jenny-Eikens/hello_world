@@ -2,7 +2,7 @@ import express from 'express'
 
 const router = express.Router()
 
-import { getAllUsers, getUserById, getUsersByFields, addUser, updateUser, deleteUserById, deleteUsersByFields, deleteAllUsers } from '../Models/userModel.js'
+import { getAllUsers, getUserById, getUsersByFields, getUserTasks, addUser, updateUser, deleteUserById, deleteUsersByFields, deleteAllUsers } from '../Models/userModel.js'
 
 // GET (all / by any field(s))
 router.get('/', async (req, res) => {
@@ -33,16 +33,25 @@ router.get('/', async (req, res) => {
     }
 })
 
-// GET (by id)
-router.get('/:id', async (req, res) => {
-    const id = req.params.id
+// GET (by id / all tasks assigned to user)
+router.get('/:filter', async (req, res) => {
+    const filter = req.params.filter
 
     try {
-        const user = await getUserById(id)
-        if (!user) {
-            res.status(404).json({ message: "No user found with this id" })
+        if (/^[0-9]+$/.test(filter)) {
+            const user = await getUserById(filter)
+            if (user.length === 0) {
+                res.status(404).json({ message: "No user found with this id" })
+            } else {
+                res.status(200).send(user)
+            }
         } else {
-            res.status(200).send(user)
+            const tasks = await getUserTasks(filter)
+            if (tasks.length === 0) {
+                res.status(400).json({ message: "No user found with this user name" })
+            } else {
+                res.status(200).send(tasks)
+            }
         }
     } catch (err) {
         res.status(500).json({ message: err.message })

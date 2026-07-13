@@ -1,7 +1,7 @@
 // Controllers get data from model & control what a route does (what gets sent back etc.)
 
 import express from 'express'
-import { getAllTasks, getTaskById, getTasksByFields, addTask, addTaskTags, updateTask, deleteTaskById, deleteTasksByFields, deleteTaskTags, deleteAllTasks } from '../Models/taskModel.js'
+import { getAllTasks, getTaskById, getTasksByFields, getTaskTags, addTask, addTaskTags, updateTask, deleteTaskById, deleteTasksByFields, deleteTaskTags, deleteAllTasks } from '../Models/taskModel.js'
 import { getAllTags } from '../Models/tagModel.js'
 
 const router = express.Router()
@@ -35,16 +35,25 @@ router.get('/', async (req, res) => {
     }
 })
 
-// GET (by id)
-router.get('/:id', async (req, res) => {
-    const id = req.params.id
+// GET (by id / all tags associated with task)
+router.get('/:filter', async (req, res) => {
+    const filter = req.params.filter
 
     try {
-        const task = await getTaskById(id)
-        if (!task) {
-            res.status(404).json({ message: "No task found with this id" })
+        if (/^[0-9]+$/.test(filter)) {
+            const task = await getTaskById(filter)
+            if (task.length === 0) {
+                res.status(404).json({ message: "No task found with this id" })
+            } else {
+                res.status(200).send(task)
+            }
         } else {
-            res.status(200).send(task)
+            const tags = await getTaskTags(filter)
+            if (tags.length === 0) {
+                res.status(404).json({ message: "No task found with this description" })
+            } else {
+                res.status(200).send(tags)
+            }
         }
     } catch (err) {
         res.status(500).json({ message: err.message })
@@ -56,7 +65,7 @@ router.get('/:id', async (req, res) => {
 // POST 
 router.post('/', async (req, res) => {
     const categories = req.body
-    const tags = categories.tags
+    const { tags } = req.body
 
     try {
         const newTask = await addTask(categories)
@@ -105,7 +114,7 @@ router.post('/', async (req, res) => {
 router.patch('/:id', async (req, res) => {
     const id = req.params.id
     const changes = req.body
-    const tags = changes.tags
+    const { tags } = req.body
 
     try {
         const updatedTask = await updateTask(id, changes)
