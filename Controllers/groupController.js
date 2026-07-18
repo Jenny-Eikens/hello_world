@@ -3,6 +3,7 @@ import { getAllGroups, getGroupById } from '../Models/groupModel.js'
 
 const router = express.Router()
 
+// GET (all)
 router.get('/', async (req, res) => {
     try {
         const groups = await getAllGroups()
@@ -12,6 +13,7 @@ router.get('/', async (req, res) => {
     }
 })
 
+// GET (by id)
 router.get('/:id', async (req, res) => {
     const id = req.params.id
 
