@@ -33,13 +33,14 @@ router.get('/', async (req, res) => {
     }
 })
 
-// GET (by id / all tasks assigned to user)
+// GET (by id / all tasks assigned to user) 
 router.get('/:filter', async (req, res) => {
     const filter = req.params.filter
+    const operator = (req.body && (/^(?:<=|>=|<|>|=)$/).test(req.body.operator)) ? req.body.operator : "="
 
     try {
         if (/^[0-9]+$/.test(filter)) {
-            const user = await getUserById(filter)
+            const user = await getUserById(filter, operator)
             if (user.length === 0) {
                 res.status(404).json({ message: "No user found with this id" })
             } else {
@@ -99,13 +100,14 @@ router.patch('/:id', async (req, res) => {
 // DELETE (by id)
 router.delete('/:id', async (req, res) => {
     const id = req.params.id
+    const operator = (req.body && (/^(?:<=|>=|<|>|=)$/).test(req.body.operator)) ? req.body.operator : "="
 
     try {
-        const userToDelete = await deleteUserById(id)
+        const userToDelete = await deleteUserById(id, operator)
         if (userToDelete.affectedRows === 0) {
             res.status(404).json({ message: "No user found with this id" })
         } else {
-            res.status(200).json({ message: `User with id ${id} successfully deleted` })
+            res.status(200).json({ message: `User(s) with id ${operator} ${id} successfully deleted` })
         }
     } catch (err) {
         res.status(500).json({ message: err.message })

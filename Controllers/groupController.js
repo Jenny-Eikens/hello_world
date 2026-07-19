@@ -16,10 +16,11 @@ router.get('/', async (req, res) => {
 // GET (by id)
 router.get('/:id', async (req, res) => {
     const id = req.params.id
+    const operator = (req.body && (/^(?:<=|>=|<|>|=)$/).test(req.body.operator)) ? req.body.operator : "="
 
     try {
-        const group = await getGroupById(id)
-        res.status(200).send(group)
+        const groups = await getGroupById(id, operator)
+        res.status(200).send(groups)
     } catch (err) {
         res.status(500).json({ message: err.message })
     }

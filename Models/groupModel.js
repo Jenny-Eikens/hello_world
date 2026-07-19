@@ -8,10 +8,10 @@ export async function getAllGroups() {
 }
 
 // Get one group (filter by id)
-export async function getGroupById(id) {
+export async function getGroupById(id, operator) {
     const [result] = await pool.query(`
         SELECT * FROM groups_list
-        WHERE group_id = ?
+        WHERE group_id ${operator} ?
     `, [id])
     return result
 }

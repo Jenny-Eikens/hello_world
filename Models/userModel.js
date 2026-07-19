@@ -10,10 +10,10 @@ export async function getAllUsers() {
 }
 
 // Get one user (filter by id)
-export async function getUserById(id) {
+export async function getUserById(id, operator) {
     const [result] = await pool.query(`
         SELECT * FROM users
-        WHERE user_id = ?
+        WHERE user_id ${operator} ?
     `, [id])
     return result
 }
@@ -134,10 +134,10 @@ export async function updateUser(id, changes) {
 
 // DELETE
 // Delete user by id
-export async function deleteUserById(id) {
+export async function deleteUserById(id, operator) {
     const [result] = await pool.query(`
         DELETE FROM users
-        WHERE user_id = ?
+        WHERE user_id ${operator} ?
     `, [id])
     return result
 }

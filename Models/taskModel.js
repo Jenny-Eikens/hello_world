@@ -12,10 +12,10 @@ export async function getAllTasks() {
 }
 
 // Get one task (filter by id)
-export async function getTaskById(id) {
+export async function getTaskById(id, operator) {
     const [result] = await pool.query(`
-        SELECT * FROM tasks
-        WHERE task_id = ? 
+        SELECT * FROM tasks 
+        WHERE task_id ${operator} ? 
     `, [id])
     return result
 }
@@ -157,10 +157,10 @@ export async function updateTask(id, changes) {
 // DELETE
 // Delete task by id
 
-export async function deleteTaskById(id) {
+export async function deleteTaskById(id, operator) {
     const [result] = await pool.query(`
         DELETE FROM tasks
-        WHERE task_id = ?
+        WHERE task_id ${operator} ?
     `, [id])
     return result
 }

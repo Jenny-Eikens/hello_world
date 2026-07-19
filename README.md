@@ -7,7 +7,8 @@
 * <code>/tasks</code>
     * Get all tasks
 * <code>/tasks/:id</code>
-    * Get one task by id
+    * Get one or more tasks by id
+    * Optionally add operator (<, <=, =, >=, >) via request body
 * <code>/tasks/:description</code>
     * Get all tags associated with one task via junction table task_tags
 * <code>/tasks?field1=value1&field2=value2</code>
@@ -27,7 +28,8 @@
 
 #### DELETE
 * <code>tasks/:id</code>
-    * Delete one task by id
+    * Delete one or more tasks by id
+    * Optionally add operator (<, <=, =, >=, >) via request body
 * <code>tasks?field1=value1&field2=value2</code>
     * Delete tasks that match one or more filter conditions
 * <code>/tasks</code>
@@ -40,7 +42,8 @@
 * <code>/users</code>
     * Get all users
 * <code>/users/:id</code>
-    * Get one user by id
+    * Get one or more users by id
+    * Optionally add operator (<, <=, =, >=, >) via request body
 * <code>users/:user_name</code>
     * Get all tasks assigned to a user via groups_list table
 * <code>/users?field1=value1&field2=value2</code>
@@ -56,7 +59,8 @@
 
 #### DELETE
 * <code>/users/:id</code>
-    * Delete one user by id 
+    * Delete one ore more users by id 
+    * Optionally add operator (<, <=, =, >=, >) via request body
 * <code>/users?field1=value1&field2=value2</code>
     * Delete users that match one or more filter conditions 
 * <code>/users</code>
@@ -82,7 +86,8 @@
 * <code>/groups</code>
     * Get all groups
 * <code>groups/:id</code>
-    * Get one group by id
+    * Get one or more groups by id
+    * Optionally add operator (<, <=, =, >=, >) via request body
 
 ***
 
